@@ -1,6 +1,8 @@
 const {request, response} = require('express')
 const userData = require('../data/userData')
-const userModel = require('../models/userModel')
+const userModel = require('../models/userModel');
+const { comparePassword } = require('../helpers/auth');
+const jwt = require('jsonwebtoken');
 
 const authenticateUser = async(request, response) => {
     const newEmail = request.params.email;
@@ -16,11 +18,24 @@ const authenticateUser = async(request, response) => {
         {
             return response.status(400).json({message: 'User not found'})
         }
-        if(newPwd != expectedUser.password)
+        // if(newPwd != expectedUser.password)
+        // {
+        //     return response.status(404).json({message: 'Invalid Password'});
+        // }
+        // BCRYPT
+        const match = await comparePassword(newPwd, expectedUser.password);
+        if(match) 
+        {
+            jwt.sign({email : expectedUser.email, id: expectedUser._id, name: expectedUser.firstName }, process.env.JWT_SECRET, {}, (error, token) => {
+                if(error) throw error;
+                response.cookie('token', token).json(expectedUser);
+            })
+            //return response.status(200).json({message : `Authentication Successful`, user : expectedUser})
+        }
+        else 
         {
             return response.status(404).json({message: 'Invalid Password'});
         }
-        return response.status(200).json({message : `Authentication Successful`, user : expectedUser})
     }
     catch(error)
     {

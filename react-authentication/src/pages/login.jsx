@@ -1,10 +1,14 @@
 import React, { useState } from "react";
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 import SignUp from './signup';
 import axios from 'axios';
 import './login.css'
+import { toast } from "react-hot-toast";
 
 function Login() {
+
+    const navigate = useNavigate();
 
     function authLogin(event) {
         event.preventDefault();
@@ -19,20 +23,23 @@ function Login() {
         .then(response => {
             console.log(response.data);
             if (response.status === 200) {
-                alert(response.data.message);
+                //alert(response.data.message);
+                toast.success('Logged in successfully');
+                navigate('/home');
             } else {
-                alert(`Unexpected status code: ${response.status}`);
+                toast.error(`Unexpected status code: ${response.status}`);
+                //alert(`Unexpected status code: ${response.status}`);
             }
         })
         .catch(error => {
             if (error.response) {
-                alert(`${error.response.data.message}`);
+                toast.error(error.response.data.message);
             } else if (error.request) {
                 console.error('Error: No response received from server', error.request);
-                alert('Error: No response received from server');
+                toast.error('Error: No response received from server');
             } else {
                 console.error('Error:', error.message);
-                alert(`Error: ${error.message}`);
+                toast.error(`Error: ${error.message}`);
             }
         });
     }

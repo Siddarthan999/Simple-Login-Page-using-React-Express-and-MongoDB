@@ -1,8 +1,12 @@
 require('dotenv').config();
 const express = require('express');
+const  cookieParser = require('cookie-parser');
 const app = express()
 const PORT  = process.env.PORT;
+
 app.use(express.json())
+app.use(cookieParser())
+app.use(express.urlencoded({extended:false}))
 
 const mongoose = require('mongoose')
 
